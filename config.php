@@ -11,6 +11,7 @@ $config = [
         'password' => DB_PASSWORD,
         'charset' => 'cp1251',
     ],
-    'controllers_namespace' => 'App\Controller'
+    'controllers_namespace' => 'App\Controller',
+    'show_json_error_description' => true,
 
 ];

@@ -5,45 +5,46 @@ namespace App\Controller;
 use App\Core\Kernel;
 use App\Core\View;
 use App\Repository\ServiceRepository;
-use App\Repository\TarifRepository;
+use App\Repository\TariffRepository;
 use App\Repository\UserRepository;
-use DateTime;
-use DateTimeZone;
 
 class UserServicesController
 {
 
     private View $view;
+    private UserRepository $userRepository;
+    private ServiceRepository $serviceRepository;
+    private TariffRepository $tariffRepository;
 
     public function __construct()
     {
         $this->view = Kernel::getInstance()->getView();
+        $this->userRepository = new UserRepository(Kernel::getInstance()->getDatabase());
+        $this->serviceRepository = new ServiceRepository(Kernel::getInstance()->getDatabase());
+        $this->tariffRepository = new TariffRepository(Kernel::getInstance()->getDatabase());
     }
 
-    public function getUserServiceTarifs(int $userId, int $serviceId)
+    public function getUserServiceTariffs(int $userId, int $serviceId)
     {
-        $userRepository = new UserRepository(Kernel::getInstance()->getDatabase());
-        $user = $userRepository->getUserById($userId);
+        $user = $this->userRepository->getUserById($userId);
         if (!$user) {
             $this->view->sendError('No user found');
             return;
         }
 
-        $serviceRepository = new ServiceRepository(Kernel::getInstance()->getDatabase());
-        $service = $serviceRepository->getServiceById($serviceId);
+        $service = $this->serviceRepository->getServiceById($serviceId);
         if (!$service) {
             $this->view->sendError('No service found');
             return;
         }
 
-        $tarifRepository = new TarifRepository(Kernel::getInstance()->getDatabase());
-        $serviceTarif = $tarifRepository->getTarifById($service->getTarifId());
+        $serviceTarif = $this->tariffRepository->getTariffById($service->getTarifId());
         if (!$serviceTarif) {
             $this->view->sendError('No tarif found');
             return;
         }
 
-        $tarifs = $tarifRepository->getTarifsByGroupId($serviceTarif->getTarifGroupId());
+        $tarifs = $this->tariffRepository->getTariffsByGroupId($serviceTarif->getTariffGroupId());
 
         $data = [
             'result' => 'ok',
@@ -59,7 +60,7 @@ class UserServicesController
                 'title' => $tarif->getTitle(),
                 'price' => $tarif->getPrice(),
                 'pay_period' => $tarif->getPayPeriod(),
-                'new_payday' => (new DateTime('today midnight', new DateTimeZone('Europe/Moscow')))->modify('+' . $tarif->getPayPeriod() . ' months')->format('UO'),
+                'new_payday' => $tarif->getPayDay()->format('UO'),
                 'speed' => $tarif->getSpeed()
             ];
         }
@@ -68,8 +69,20 @@ class UserServicesController
 
     }
 
-    public function setUserServiceTarif(int $userId, int $serviceId, object $data)
+    public function setUserServiceTariff(int $userId, int $serviceId, object $data)
     {
+        if (empty($data->tarif_id)) {
+            $this->view->sendError('tarif_id is not passed');
+        }
 
+        $tarif = $this->tariffRepository->getTariffById($data->tarif_id);
+        if (!$tarif) {
+            $this->view->sendError('No tariff found');
+        }
+        if ($this->serviceRepository->setTariff($serviceId, $tarif)) {
+            $this->view->sendJson(['result' => 'ok']);
+        } else {
+            $this->view->sendError('Error occurred while setting tariff');
+        }
     }
 }

@@ -20,7 +20,7 @@ class UserRepository
 
     public function getUserById(int $id): ?User
     {
-        $userData = $this->database->query('SELECT * FROM ' . $this->tableName . ' WHERE id = :id', ['id' => $id]);
+        $userData = $this->database->selectQuery('SELECT * FROM ' . $this->tableName . ' WHERE ID = :id', ['id' => $id]);
         if (count($userData) === 0) {
             return null;
         }

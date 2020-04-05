@@ -3,8 +3,10 @@
 namespace App\Model;
 
 use App\Core\Interfaces\ModelInterface;
+use DateTime;
+use DateTimeZone;
 
-class Tarif implements ModelInterface
+class Tariff implements ModelInterface
 {
     private string $id;
 
@@ -18,7 +20,7 @@ class Tarif implements ModelInterface
 
     private int $payPeriod;
 
-    private int $tarifGroupId;
+    private int $tariffGroupId;
 
     private $dataMapping = [
         'ID' => [
@@ -46,7 +48,7 @@ class Tarif implements ModelInterface
             'type' => 'int'
         ],
         'tarif_group_id' => [
-            'propertyName' => 'tarifGroupId',
+            'propertyName' => 'tariffGroupId',
             'type' => 'int'
         ],
     ];
@@ -61,7 +63,7 @@ class Tarif implements ModelInterface
 
     /**
      * @param string $id
-     * @return Tarif
+     * @return Tariff
      */
     public function setId(string $id): self
     {
@@ -79,7 +81,7 @@ class Tarif implements ModelInterface
 
     /**
      * @param string $title
-     * @return Tarif
+     * @return Tariff
      */
     public function setTitle(string $title): self
     {
@@ -97,7 +99,7 @@ class Tarif implements ModelInterface
 
     /**
      * @param float $price
-     * @return Tarif
+     * @return Tariff
      */
     public function setPrice(float $price): self
     {
@@ -115,7 +117,7 @@ class Tarif implements ModelInterface
 
     /**
      * @param string $link
-     * @return Tarif
+     * @return Tariff
      */
     public function setLink(string $link): self
     {
@@ -133,7 +135,7 @@ class Tarif implements ModelInterface
 
     /**
      * @param int $speed
-     * @return Tarif
+     * @return Tariff
      */
     public function setSpeed(int $speed): self
     {
@@ -151,7 +153,7 @@ class Tarif implements ModelInterface
 
     /**
      * @param int $payPeriod
-     * @return Tarif
+     * @return Tariff
      */
     public function setPayPeriod(int $payPeriod): self
     {
@@ -162,24 +164,29 @@ class Tarif implements ModelInterface
     /**
      * @return int
      */
-    public function getTarifGroupId(): int
+    public function getTariffGroupId(): int
     {
-        return $this->tarifGroupId;
+        return $this->tariffGroupId;
     }
 
     /**
-     * @param int $tarifGroupId
-     * @return Tarif
+     * @param int $tariffGroupId
+     * @return Tariff
      */
-    public function setTarifGroupId(int $tarifGroupId): self
+    public function setTariffGroupId(int $tariffGroupId): self
     {
-        $this->tarifGroupId = $tarifGroupId;
+        $this->tariffGroupId = $tariffGroupId;
         return $this;
     }
 
     public function getDataMapping()
     {
         return $this->dataMapping;
+    }
+
+    public function getPayDay(): DateTime
+    {
+        return (new DateTime('today midnight', new DateTimeZone('Europe/Moscow')))->modify('+' . $this->getPayPeriod() . ' months');
     }
 
 }

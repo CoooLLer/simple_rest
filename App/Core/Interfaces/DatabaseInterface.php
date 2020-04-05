@@ -3,5 +3,5 @@ namespace App\Core\Interfaces;
 
 interface DatabaseInterface
 {
-     public function query(string $query, array $params);
+     public function selectQuery(string $query, array $params);
 }

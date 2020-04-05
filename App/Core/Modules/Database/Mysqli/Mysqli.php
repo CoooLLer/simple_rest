@@ -14,7 +14,7 @@ class Mysqli implements DatabaseInterface
         $this->connection = new PDO('mysql:host=' . $config['host'] . ';dbname=' . $config['name'] . ';charset=' . $config['charset'], $config['user'], $config['password']);
     }
 
-    public function query(string $query, array $params)
+    public function selectQuery(string $query, array $params)
     {
         $statement = $this->connection->prepare($query);
         if ($statement->execute($params)) {
@@ -22,7 +22,15 @@ class Mysqli implements DatabaseInterface
         } else {
             throw new Exception(sprintf('Error while executing query %s', $query));
         }
+    }
 
-
+    public function updateQuery(string $query, array $params)
+    {
+        $statement = $this->connection->prepare($query);
+        if ($statement->execute($params)) {
+            return $statement->rowCount();
+        } else {
+            throw new Exception(sprintf('Error while executing query %s', $query));
+        }
     }
 }
